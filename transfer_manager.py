@@ -156,7 +156,7 @@ class FileDownloadAPI:
         s3.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
 
@@ -172,7 +172,7 @@ class FileDownloadAPI:
             s3_filename,
             download_file_path,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
 
@@ -188,7 +188,7 @@ class FileDownloadAPI:
             s3_filename,
             download_file_path,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
 
@@ -208,7 +208,7 @@ class FileDownloadAPI:
             s3_filename,
             download_file_path,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
     def download_with_chunksize(self, bucket_name, s3_filename,
@@ -227,7 +227,7 @@ class FileDownloadAPI:
             s3_filename,
             download_file_path,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
     def download_with_transfer_acceleration(self, bucket_name, s3_filename, download_file_path, file_size_mb):
@@ -246,5 +246,5 @@ class FileDownloadAPI:
             s3_filename,
             download_file_path,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info

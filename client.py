@@ -18,14 +18,14 @@ def get_full_file_name(file):
 
 def generate_files():
     global FILES
+    global MAX_FILE_SIZE
     size_mb = 1
     ratio = 2
-    while (size_mb <= 128):
+    while (size_mb <= MAX_FILE_SIZE):
         filename = get_full_file_name(f"file_{size_mb}MB")
         file_generator.generate_big_random_bin_file(filename, size_mb * MB)
         FILES[filename] = size_mb
-    size_mb = ratio * size_mb
-    ratio = ratio * 2
+        size_mb = ratio * size_mb
 
 
 def get_files_from_directory():
@@ -45,7 +45,8 @@ def upload_files_serial(upload_function, bucket_name, meta=None):
         start_time = time.perf_counter()
         data = upload_function(filename, bucket_name, filename, file_size)
         end_time = time.perf_counter()
-        print(f"{file_size} { end_time - start_time}")
+        print(file_size / MB)
+        print(f"{end_time - start_time}")
     global_end_time = time.perf_counter()
 
     print(f"[Serial Upload] Total elapsed time: {global_end_time - global_start_time}")
@@ -83,7 +84,8 @@ def download_files_serial(download_function, bucket_name, meta=None):
         start_time = time.perf_counter()
         data = download_function(bucket_name, filename, filename, file_size)
         end_time = time.perf_counter()
-        print_tranfer_result(data, end_time - start_time)
+        #print_tranfer_result(data, end_time - start_time)
+        print(f"{end_time - start_time}")
     global_end_time = time.perf_counter()
 
     print(f"[Serial Download] Total elapsed time: {global_end_time - global_start_time}")
@@ -117,9 +119,9 @@ def download_files_with_thread_for_each_file(download_function, bucket_name, met
 
 
 def main():
-    #get_files_from_directory()
-    generate_files()	
-    bucket_name = 'big-data-project-eu'
+    get_files_from_directory()
+    #generate_files()	
+    bucket_name = 'big-data-project-us'
 
     file_download = FileDownloadAPI()
     file_upload = FileUploadAPI()
