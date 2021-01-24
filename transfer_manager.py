@@ -74,7 +74,7 @@ class FileUploadAPI:
         configuration.
         """
         transfer_callback = TransferCallback(file_size_mb)
-        self.s3.upload_file(local_file_path, bucket_name, s3_filename, Callback=transfer_callback)
+        self.s3.upload_file(local_file_path, bucket_name, s3_filename)
         
         return transfer_callback.thread_info
 
@@ -100,7 +100,7 @@ class FileUploadAPI:
             bucket_name,
             s3_filename,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
 
@@ -121,7 +121,7 @@ class FileUploadAPI:
             bucket_name,
             s3_filename,
             Config=config,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
     def upload_with_transfer_acceleration(self, local_file_path, bucket_name, s3_filename,
@@ -137,7 +137,7 @@ class FileUploadAPI:
             local_file_path,
             bucket_name,
             s3_filename,
-            Callback=transfer_callback)
+            )
         return transfer_callback.thread_info
 
 
