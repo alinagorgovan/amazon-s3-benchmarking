@@ -18,11 +18,10 @@ def get_full_file_name(file):
 
 def generate_files():
     global FILES
-    file_types = ["random", "ascii", "sparse", "sentences"]
     size_mb = 1
     ratio = 2
     while (size_mb <= 128):
-        filename = get_full_file_name(f"{file_type}_{size_mb}MB")
+        filename = get_full_file_name(f"file_{size_mb}MB")
         file_generator.generate_big_random_bin_file(filename, size_mb * MB)
         FILES[filename] = size_mb
     size_mb = ratio * size_mb
