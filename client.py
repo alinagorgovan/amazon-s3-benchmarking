@@ -11,7 +11,7 @@ MB = 1024 * 1024
 DIRECTORY = './demo_files'
 DOWNLOADS_DIR= './demo_files/downloads'
 FILES = {}
-MAX_FILE_SIZE = 512
+MAX_FILE_SIZE = 128
 
 def get_full_file_name(file):
     return f"{DIRECTORY}/{file}"
@@ -45,7 +45,6 @@ def upload_files_serial(upload_function, bucket_name, meta=None):
         start_time = time.perf_counter()
         data = upload_function(filename, bucket_name, filename, file_size)
         end_time = time.perf_counter()
-        #print(file_size / MB)
         print(f"{end_time - start_time}")
     global_end_time = time.perf_counter()
 
@@ -84,7 +83,6 @@ def download_files_serial(download_function, bucket_name, meta=None):
         start_time = time.perf_counter()
         data = download_function(bucket_name, filename, filename, file_size)
         end_time = time.perf_counter()
-        #print_tranfer_result(data, end_time - start_time)
         print(f"{end_time - start_time}")
     global_end_time = time.perf_counter()
 
@@ -119,8 +117,8 @@ def download_files_with_thread_for_each_file(download_function, bucket_name, met
 
 
 def main():
-    get_files_from_directory()
-    #generate_files()	
+    #get_files_from_directory()
+    generate_files()	
     bucket_name = 'big-data-project-eu'
 
     file_download = FileDownloadAPI()
@@ -133,11 +131,8 @@ def main():
         file_upload.upload_with_multipart_chunksize
     ]
 
-    #for f in upload_functions:
-    #upload_files_serial(file_upload.upload_with_default_configuration, bucket_name)
-        #upload_files_with_thread_for_each_file(f, bucket_name)
-        #upload_files_with_thread_pool(f, bucket_name)
-
+    for f in upload_functions:
+        upload_files_serial(f, bucket_name)
 
     download_functions = [
         file_download.download_with_default_configuration,
@@ -148,10 +143,8 @@ def main():
         file_download.download_with_transfer_acceleration
     ]
 
-    #for f in download_functions:
-    download_files_serial(file_download.download_with_default_configuration, bucket_name)
-       # download_files_with_thread_for_each_file(f, bucket_name)
-       # download_files_with_thread_pool(f, bucket_name)
+    for f in download_functions:
+        download_files_serial(f, bucket_name)
 
     #for filename in FILES:
         #os.remove(filename)

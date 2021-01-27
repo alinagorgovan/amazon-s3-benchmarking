@@ -1,13 +1,3 @@
-"""
-Use Boto 3 managed file transfers to manage multipart uploads to and downloads
-from an Amazon S3 bucket.
-
-When the file to transfer is larger than the specified threshold, the transfer
-manager automatically uses multipart uploads or downloads. This demonstration
-shows how to use several of the available transfer manager settings and reports
-thread usage and time to transfer.
-"""
-
 import sys
 import threading
 
@@ -57,12 +47,6 @@ class TransferCallback:
                 f"({(self._total_transferred / target) * 100:.2f}%).")
             sys.stdout.flush()
 
-
-# s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,
-#                       aws_secret_access_key=SECRET_KEY,
-                    #   endpoint_url='http://big-data-project-eu.s3-accelerate.amazonaws.com',
-                    #   config=Config(s3={'use_accelerate_endpoint': True}))
-
 class FileUploadAPI:
     def __init__(self):
         self.s3 = boto3.client('s3')
@@ -73,6 +57,7 @@ class FileUploadAPI:
         Upload a file from a local folder to an Amazon S3 bucket, using the default
         configuration.
         """
+        print(f"Uploading a file of {file_size_mb}MB with default configurations.")
         transfer_callback = TransferCallback(file_size_mb)
         self.s3.upload_file(local_file_path, bucket_name, s3_filename)
         
@@ -92,6 +77,7 @@ class FileUploadAPI:
         The metadata is a set of key-value pairs that are stored with the object
         in Amazon S3.
         """
+        print(f"Uploading a file of {file_size_mb}MB with multipart chunks.")
         transfer_callback = TransferCallback(file_size_mb)
 
         config = TransferConfig(multipart_chunksize=1 * MB, max_concurrency=12, use_threads=True)
@@ -100,7 +86,7 @@ class FileUploadAPI:
             bucket_name,
             s3_filename,
             Config=config,
-            )
+            callback=TransferCallback)
         return transfer_callback.thread_info
 
 
@@ -114,6 +100,8 @@ class FileUploadAPI:
         in the transfer manager sending the file as a standard upload instead of
         a multipart upload.
         """
+        print(f"Uploading a file of {file_size_mb}MB with multipart chunks.")
+
         transfer_callback = TransferCallback(file_size_mb)
         config = TransferConfig(multipart_threshold=file_size_mb * 2 * MB)
         self.s3.upload_file(
@@ -121,7 +109,7 @@ class FileUploadAPI:
             bucket_name,
             s3_filename,
             Config=config,
-            )
+            callback=TransferCallback)
         return transfer_callback.thread_info
 
     def upload_with_transfer_acceleration(self, local_file_path, bucket_name, s3_filename,
@@ -130,6 +118,7 @@ class FileUploadAPI:
         Upload a file from a local folder to an Amazon S3 bucket with transfer
         acceleration function enabled.
         """
+        print(f"Uploading a file of {file_size_mb}MB with transfer acceleration.")
         s3_accelerated = boto3.client('s3', endpoint_url='http://big-data-project-eu.s3-accelerate.amazonaws.com',
                         config=Config(s3={'use_accelerate_endpoint': True}))
         transfer_callback = TransferCallback(file_size_mb)
@@ -137,9 +126,8 @@ class FileUploadAPI:
             local_file_path,
             bucket_name,
             s3_filename,
-            )
+            callback=TransferCallback)
         return transfer_callback.thread_info
-
 
 
 class FileDownloadAPI:
@@ -152,11 +140,11 @@ class FileDownloadAPI:
         Download a file from an Amazon S3 bucket to a local folder, using the
         default configuration.
         """
+        print(f"Downloading a file of {file_size_mb}MB with derfault configuration.")
         transfer_callback = TransferCallback(file_size_mb)
         s3.Bucket(bucket_name).download_file(
             s3_filename,
-            download_file_path,
-            )
+            download_file_path)
         return transfer_callback.thread_info
 
 
@@ -166,13 +154,13 @@ class FileDownloadAPI:
         Download a file from an Amazon S3 bucket to a local folder, using a
         single thread.
         """
+        print(f"Downloading a file of {file_size_mb}MB with a single thread.")
         transfer_callback = TransferCallback(file_size_mb)
         config = TransferConfig(use_threads=False)
         s3.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Config=config,
-            )
+            Config=config)
         return transfer_callback.thread_info
 
 
@@ -182,13 +170,13 @@ class FileDownloadAPI:
         Download a file from an Amazon S3 bucket to a local folder, using a
         single thread.
         """
+        print(f"Downloading a file of {file_size_mb}MB with multi threads.")
         transfer_callback = TransferCallback(file_size_mb)
         config = TransferConfig(max_concurrency=threads_no, use_threads=True)
         s3.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Config=config,
-            )
+            Config=config)
         return transfer_callback.thread_info
 
 
@@ -202,13 +190,13 @@ class FileDownloadAPI:
         in the transfer manager sending the file as a standard download instead
         of a multipart download.
         """
+        print(f"Downloading a file of {file_size_mb}MB with high threshold.")
         transfer_callback = TransferCallback(file_size_mb)
-        config = TransferConfig(multipart_threshold=file_size_mb * 2 * MB)
+        config = TransferConfig(multipart_threshold=file_size_mb * 64 * MB)
         s3.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Config=config,
-            )
+            Config=config)
         return transfer_callback.thread_info
 
     def download_with_chunksize(self, bucket_name, s3_filename,
@@ -221,13 +209,13 @@ class FileDownloadAPI:
         in the transfer manager sending the file as a standard download instead
         of a multipart download.
         """
+        print(f"Downloading a file of {file_size_mb}MB with multipart chunksize.")
         transfer_callback = TransferCallback(file_size_mb)
         config = TransferConfig(multipart_chunksize=1 * MB, max_concurrency=12, use_threads=True)
         s3.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Config=config,
-            )
+            Config=config)
         return transfer_callback.thread_info
 
     def download_with_transfer_acceleration(self, bucket_name, s3_filename, download_file_path, file_size_mb):
@@ -239,12 +227,12 @@ class FileDownloadAPI:
         in the transfer manager sending the file as a standard download instead
         of a multipart download.
         """
+        print(f"Downloading a file of {file_size_mb}MB with transfer acceleration.")
         s3_accelerated = boto3.resource('s3', endpoint_url='http://big-data-project-eu.s3-accelerate.amazonaws.com', config=Config(s3={'use_accelerate_endpoint': True}))
         transfer_callback = TransferCallback(file_size_mb)
         config = TransferConfig(multipart_chunksize=1 * MB)
         s3_accelerated.Bucket(bucket_name).download_file(
             s3_filename,
             download_file_path,
-            Config=config,
-            )
+            Config=config)
         return transfer_callback.thread_info
